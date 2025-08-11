@@ -23,7 +23,6 @@ const Landing = () => {
 
   const [playlist, setPlaylist] = useState([]);
 
-  console.log("api key", import.meta.env.VITE_REACT_APP_YT_API_KEY);
 
   useEffect(() => {
     const fetchPlaylistVideos = async () => {
