@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import newlogo from '../assets/janmorcha.jpeg';
 import { FaFacebook } from 'react-icons/fa';
 import { FaSquareInstagram } from 'react-icons/fa6';
 import { FaYoutube } from 'react-icons/fa';
 import { TypeAnimation } from 'react-type-animation';
-import author from '../assets/ashtosh-ji.jpg';
+import author from '../assets/ashtoshjii.jpg';
 import newspaper from "../assets/newpaper.jpeg";
 import rajlogo from '../assets/rajlogo.jpg';
 import jhon from "../assets/jhon.jpeg"
@@ -22,6 +22,15 @@ const Landing = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const [playlist, setPlaylist] = useState([]);
+
+   const swiperRef = useRef(null);
+
+  useEffect(() => {
+    // ensure autoplay is started if for some reason it didn't start automatically
+    if (swiperRef.current?.autoplay && !swiperRef.current.autoplay.running) {
+      swiperRef.current.autoplay.start();
+    }
+  }, []);
 
 
   useEffect(() => {
@@ -124,41 +133,43 @@ const Landing = () => {
 
       {/* playlist videos url */}
       <div >
-    <Swiper
-  modules={[Autoplay, Navigation]}
-  spaceBetween={20}
-  slidesPerView={1}
-  loop={true}
-  speed={4000}
-  autoplay={{
-    delay: 1,
-    disableOnInteraction: false,
-  }}
-  navigation={true}
-  breakpoints={{
-    640: { slidesPerView: 2 },
-    1024: { slidesPerView: 3 },
-  }}
->
-  {playlist.map(
-    (video) =>
-      video?.snippet?.description !== 'This video is unavailable.' && (
-        <SwiperSlide key={video.id}>
-          <a
-            href={`https://www.youtube.com/watch?v=${video.snippet.resourceId.videoId}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <VideoDescription
-              url={video.snippet.thumbnails?.high?.url}
-              title={video.snippet?.title}
-              description={video.snippet.description}
-            />
-          </a>
-        </SwiperSlide>
-      )
-  )}
-</Swiper>
+   <Swiper
+        modules={[Autoplay, Navigation]}
+        spaceBetween={20}
+        slidesPerView={1}
+        loop={true}
+        speed={800} // transition duration (ms)
+        autoplay={{
+          delay: 2000,              // 3000 ms = 3s between slides
+          disableOnInteraction: false, // keep autoplay running after user interaction
+          pauseOnMouseEnter: true // optional: pause while hovering
+        }}
+        navigation={true}
+        onSwiper={(swiper) => { swiperRef.current = swiper; }}
+        breakpoints={{
+          640: { slidesPerView: 2 },
+          1024: { slidesPerView: 3 },
+        }}
+      >
+        {playlist.map(
+          (video) =>
+            video?.snippet?.description !== 'This video is unavailable.' && (
+              <SwiperSlide key={video.id}>
+                <a
+                  href={`https://www.youtube.com/watch?v=${video.snippet.resourceId.videoId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <VideoDescription
+                    url={video.snippet.thumbnails?.high?.url}
+                    title={video.snippet?.title}
+                    description={video.snippet.description}
+                  />
+                </a>
+              </SwiperSlide>
+            )
+        )}
+      </Swiper>
 
     </div>
       {/* News Sections */}
