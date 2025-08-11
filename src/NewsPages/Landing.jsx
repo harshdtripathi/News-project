@@ -132,7 +132,7 @@ const Landing = () => {
   speed={4000}
   autoplay={{
     delay: 1,
-    disableOnInteraction: false,
+    disableOnInteraction: true,
   }}
   navigation={true}
   breakpoints={{
