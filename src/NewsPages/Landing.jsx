@@ -31,7 +31,7 @@ const Landing = () => {
           `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=PLes1Xw0kZQJb9J-tPs6ko9MNxSKEqMc_k&maxResults=10&key=${import.meta.env.VITE_REACT_APP_YT_API_KEY}`
         );
         const data = await response.json();
-        console.log("Fetched Playlist Data:", data);
+        // console.log("Fetched Playlist Data:", data);
 
         setPlaylist(data.items); // Now contains video details
       } catch (error) {
