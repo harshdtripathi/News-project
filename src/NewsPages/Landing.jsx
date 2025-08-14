@@ -14,6 +14,7 @@ import { HiMenuAlt3, HiX } from "react-icons/hi";
 import VideoDescription from './VideoDescription';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Navigation } from 'swiper/modules';
+import { AiFillYoutube } from "react-icons/ai";
 import 'swiper/css';
 import 'swiper/css/navigation'
 
@@ -22,8 +23,9 @@ const Landing = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const [playlist, setPlaylist] = useState([]);
+  const [avlplay, setAvlplay] = useState(false);
 
-   const swiperRef = useRef(null);
+  const swiperRef = useRef(null);
 
   useEffect(() => {
     // ensure autoplay is started if for some reason it didn't start automatically
@@ -37,10 +39,15 @@ const Landing = () => {
     const fetchPlaylistVideos = async () => {
       try {
         const response = await fetch(
-          `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=PLes1Xw0kZQJb9J-tPs6ko9MNxSKEqMc_k&maxResults=10&key=${import.meta.env.VITE_REACT_APP_YT_API_KEY}`
+          `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=PLes1Xw0kZQJZrUEQ6wvKqQN2yhc3mrhSA&maxResults=10&key=${import.meta.env.VITE_REACT_APP_YT_API_KEY}`
         );
         const data = await response.json();
-        // console.log("Fetched Playlist Data:", data);
+        console.log("Fetched Playlist Data:", data);
+
+        if (data?.items?.length > 0)
+          setAvlplay(true);
+
+
 
         setPlaylist(data.items); // Now contains video details
       } catch (error) {
@@ -132,46 +139,56 @@ const Landing = () => {
       </section>
 
       {/* playlist videos url */}
-      <div >
-   <Swiper
-        modules={[Autoplay, Navigation]}
-        spaceBetween={20}
-        slidesPerView={1}
-        loop={true}
-        speed={800} // transition duration (ms)
-        autoplay={{
-          delay: 2000,              // 3000 ms = 3s between slides
-          disableOnInteraction: false, // keep autoplay running after user interaction
-          pauseOnMouseEnter: true // optional: pause while hovering
-        }}
-        navigation={true}
-        onSwiper={(swiper) => { swiperRef.current = swiper; }}
-        breakpoints={{
-          640: { slidesPerView: 2 },
-          1024: { slidesPerView: 3 },
-        }}
-      >
-        {playlist.map(
-          (video) =>
-            video?.snippet?.description !== 'This video is unavailable.' && (
-              <SwiperSlide key={video.id}>
-                <a
-                  href={`https://www.youtube.com/watch?v=${video.snippet.resourceId.videoId}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <VideoDescription
-                    url={video.snippet.thumbnails?.high?.url}
-                    title={video.snippet?.title}
-                    description={video.snippet.description}
-                  />
-                </a>
-              </SwiperSlide>
-            )
-        )}
-      </Swiper>
+      { setAvlplay && (
+         <div >
+        <Swiper
+          modules={[Autoplay, Navigation]}
+          spaceBetween={20}
+          slidesPerView={1}
+          loop={true}
+          speed={800} // transition duration (ms)
+          autoplay={{
+            delay: 2000,              // 3000 ms = 3s between slides
+            disableOnInteraction: false, // keep autoplay running after user interaction
+            pauseOnMouseEnter: true // optional: pause while hovering
+          }}
+          navigation={true}
+          onSwiper={(swiper) => { swiperRef.current = swiper; }}
+          breakpoints={{
+            640: { slidesPerView: 2 },
+            1024: { slidesPerView: 3 },
+          }}
+        >
+          {playlist.map(
+            (video) =>
+              video?.snippet?.description !== 'This video is unavailable.' && (
+                <SwiperSlide key={video.id}>
+                  <a
+                    href={`https://www.youtube.com/watch?v=${video.snippet.resourceId.videoId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="relative"
+                  >
+                    <VideoDescription
+                      url={video.snippet.thumbnails?.high?.url}
+                      title={video.snippet?.title}
+                      description={video.snippet.description}
+                    />
 
-    </div>
+                    {/* YouTube Play Icon Overlay */}
+                    <AiFillYoutube
+                      className="absolute inset-0 m-auto text-red-600 opacity-90 w-16 h-16 drop-shadow-lg"
+                    />
+                  </a>
+                </SwiperSlide>
+              )
+          )}
+        </Swiper>
+      </div>
+      )
+
+      }
+     
       {/* News Sections */}
       <div className="flex flex-col md:flex-row justify-center items-stretch gap-6 px-6 py-12 max-w-7xl mx-auto">
         {[
