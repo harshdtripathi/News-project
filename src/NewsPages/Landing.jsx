@@ -22,7 +22,9 @@ import 'swiper/css/navigation'
 const Landing = () => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const [playlist, setPlaylist] = useState([]);
+
+  const [playlist, setPlaylist] = useState([]);   // first playlist
+  const [playlist2, setPlaylist2] = useState([]); // second playlist
   const [avlplay, setAvlplay] = useState(false);
 
   const swiperRef = useRef(null);
@@ -57,6 +59,26 @@ const Landing = () => {
 
     fetchPlaylistVideos();
   }, []);
+
+  useEffect(() => {
+    const fetchSecondPlaylist = async () => {
+      try {
+        const response = await fetch(
+          `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=PLes1Xw0kZQJbM_rdNDGhKWRxalk5LABgX&maxResults=10&key=${import.meta.env.VITE_REACT_APP_YT_API_KEY}`
+        );
+        const data = await response.json();
+        console.log("Fetched Second Playlist Data:", data);
+
+        if (data?.items?.length > 0) setPlaylist2(data.items);
+      } catch (error) {
+        console.error("Error fetching second playlist videos:", error);
+      }
+    };
+
+    fetchSecondPlaylist();
+  }, []);
+
+
 
   return (
     <div className="w-full font-sans flex flex-col justify-between text-[#2d2d2d] min-h-screen overflow-x-hidden">
@@ -139,72 +161,101 @@ const Landing = () => {
       </section>
 
       {/* playlist videos url */}
-      { setAvlplay && (
-         <div >
-        <Swiper
-          modules={[Autoplay, Navigation]}
-          spaceBetween={20}
-          slidesPerView={1}
-          loop={true}
-          speed={800} // transition duration (ms)
-          autoplay={{
-            delay: 2000,              // 3000 ms = 3s between slides
-            disableOnInteraction: false, // keep autoplay running after user interaction
-            pauseOnMouseEnter: true // optional: pause while hovering
-          }}
-          navigation={true}
-          onSwiper={(swiper) => { swiperRef.current = swiper; }}
-          breakpoints={{
-            640: { slidesPerView: 2 },
-            1024: { slidesPerView: 3 },
-          }}
-        >
-          {playlist.map(
-            (video) =>
-              video?.snippet?.description !== 'This video is unavailable.' && (
-                <SwiperSlide key={video.id}>
-                  <a
-                    href={`https://www.youtube.com/watch?v=${video.snippet.resourceId.videoId}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="relative"
-                  >
-                    <VideoDescription
-                      url={video.snippet.thumbnails?.high?.url}
-                      title={video.snippet?.title}
-                      description={video.snippet.description}
-                    />
+      {setAvlplay && (
+        <div >
+          <Swiper
+            modules={[Autoplay, Navigation]}
+            spaceBetween={20}
+            slidesPerView={1}
+            loop={true}
+            speed={800} // transition duration (ms)
+            autoplay={{
+              delay: 2000,              // 3000 ms = 3s between slides
+              disableOnInteraction: false, // keep autoplay running after user interaction
+              pauseOnMouseEnter: true // optional: pause while hovering
+            }}
+            navigation={true}
+            onSwiper={(swiper) => { swiperRef.current = swiper; }}
+            breakpoints={{
+              640: { slidesPerView: 2 },
+              1024: { slidesPerView: 3 },
+            }}
+          >
+            {playlist.map(
+              (video) =>
+                video?.snippet?.description !== 'This video is unavailable.' && (
+                  <SwiperSlide key={video.id}>
+                    <a
+                      href={`https://www.youtube.com/watch?v=${video.snippet.resourceId.videoId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="relative"
+                    >
+                      <VideoDescription
+                        url={video.snippet.thumbnails?.high?.url}
+                        title={video.snippet?.title}
+                        description={video.snippet.description}
+                      />
 
-                    {/* YouTube Play Icon Overlay */}
-                    <AiFillYoutube
-                      className="absolute inset-0 m-auto text-red-600 opacity-90 w-16 h-16 drop-shadow-lg"
-                    />
-                  </a>
-                </SwiperSlide>
-              )
-          )}
-        </Swiper>
-      </div>
+                      {/* YouTube Play Icon Overlay */}
+                      <AiFillYoutube
+                        className="absolute inset-0 m-auto text-red-600 opacity-90 w-16 h-16 drop-shadow-lg"
+                      />
+                    </a>
+                  </SwiperSlide>
+                )
+            )}
+          </Swiper>
+        </div>
       )
 
       }
-     
+
       {/* News Sections */}
-      <div className="flex flex-col md:flex-row justify-center items-stretch gap-6 px-6 py-12 max-w-7xl mx-auto">
-        {[
-          { title: 'राजनीति की खबरें', text: 'हम आपको राजनीति की हर हलचल की सटीक जानकारी प्रदान करते हैं, ताकि आप हमेशा अपडेटेड रहें।', image1: newlogo },
-          { title: 'खेल की दुनिया', text: 'क्रिकेट से लेकर ओलंपिक तक — राजधानी तक आपको खेल जगत की हर नई जानकारी देता है।', image1: jhon },
-          { title: 'मनोरंजन की खबरें', text: 'बॉलीवुड से लेकर वेब सीरीज़ तक — हम लाते हैं आपके लिए मनोरंजन की सभी बड़ी खबरें।', image1: gd },
-        ].map((item, index) => (
-          <div
-            key={index}
-            className="flex flex-col items-center md:items-start hover:bg-gray-200 w-full md:w-1/3 border border-red-700 bg-white rounded-xl shadow-lg p-3"
-          >
-            <img src={item.image1} alt={item.title} className="w-full h-40 object-fill rounded-lg shadow-md mb-4" />
-            <h3 className="text-xl font-semibold text-blue-800 mb-2">{item.title}</h3>
-            <p className="text-gray-700 text-base font-semibold text-center md:text-left">{item.text}</p>
+      <div className="flex flex-col md:flex-row justify-center items-stretch gap-6 px-6 py-12 w-full mx-auto">
+        {playlist2.length > 0 && (
+          <div className="px-6 py-12 w-full mx-auto">
+            <h2 className="text-2xl font-bold text-red-700 mb-4">🎥 अन्य वीडियो</h2>
+            <Swiper
+              modules={[Autoplay, Navigation]}
+              spaceBetween={20}
+              slidesPerView={1}
+              loop={true}
+              speed={800}
+              autoplay={{
+                delay: 2500,
+                disableOnInteraction: false,
+                pauseOnMouseEnter: true,
+              }}
+              navigation={true}
+              breakpoints={{
+                640: { slidesPerView: 2 },
+                1024: { slidesPerView: 3 },
+              }}
+            >
+              {playlist2.map(
+                (video) =>
+                  video?.snippet?.description !== "This video is unavailable." && (
+                    <SwiperSlide key={video.id}>
+                      <a
+                        href={`https://www.youtube.com/watch?v=${video.snippet.resourceId.videoId}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="relative"
+                      >
+                        <VideoDescription
+                          url={video.snippet.thumbnails?.high?.url}
+                          title={video.snippet?.title}
+                          description={video.snippet.description}
+                        />
+                        <AiFillYoutube className="absolute inset-0 m-auto text-red-600 opacity-90 w-16 h-16 drop-shadow-lg" />
+                      </a>
+                    </SwiperSlide>
+                  )
+              )}
+            </Swiper>
           </div>
-        ))}
+        )}
       </div>
 
       {/* About the Author */}

@@ -15,7 +15,7 @@ const VideoDescription = ({ url, title, description }) => {
           {title}
         </span>
         {description && (
-          <p className="mt-1 text-xs sm:text-sm text-gray-600 line-clamp-2">
+          <p className="mt-1 text-lg sm:text-sm text-gray-600 line-clamp-2">
             {description}
           </p>
         )}
