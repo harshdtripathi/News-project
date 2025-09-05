@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { use, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import newlogo from '../assets/janmorcha.jpeg';
 import { FaFacebook } from 'react-icons/fa';
@@ -17,10 +17,38 @@ import { Autoplay, Navigation } from 'swiper/modules';
 import { AiFillYoutube } from "react-icons/ai";
 import 'swiper/css';
 import 'swiper/css/navigation'
+import { motion } from "framer-motion";
+import WeatherCard from './WeatherCard.jsx';
 
 
 const Landing = () => {
   const [isOpen, setIsOpen] = useState(false);
+
+  const [weather, setWeather] = useState(null);
+  const [location, setLocation] = useState({ lat: null, lon: null });
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setLocation({
+            lat: pos.coords.latitude,
+            lon: pos.coords.longitude,
+          });
+        },
+        (err) => {
+          console.error("Error getting location:", err);
+          // fallback: New Delhi
+          setLocation({ lat: 28.6139, lon: 77.2090 });
+        }
+      );
+    } else {
+      console.error("Geolocation not supported by this browser.");
+      setLocation({ lat: 28.6139, lon: 77.2090 });
+    }
+  }, []);
+
+
 
 
   const [playlist, setPlaylist] = useState([]);   // first playlist
@@ -36,6 +64,33 @@ const Landing = () => {
     }
   }, []);
 
+
+  useEffect(() => {
+    const getWeatherReport = async () => {
+      if (!location.lat || !location.lon) return;
+
+      try {
+
+
+        const response = await fetch(
+          `https://api.openweathermap.org/data/2.5/weather?lat=${location.lat}&lon=${location.lon}&appid=${import.meta.env.VITE_REACT_APP_WEATHER_KEY}&units=metric`
+        );
+
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch weather data");
+        }
+
+        const data = await response.json();
+        console.log("Weather Data:", data);
+        setWeather(data);
+      } catch (e) {
+        console.error("Error fetching weather:", e);
+      }
+    };
+
+    getWeatherReport();
+  }, [location]);
 
   useEffect(() => {
     const fetchPlaylistVideos = async () => {
@@ -132,13 +187,11 @@ const Landing = () => {
             🎥 मुख्य खबरें देखें
           </a>
         </div>
-        <div className="md:w-1/2 flex justify-center md:justify-end">
-          <img
-            src={newspaper}
-            alt="Profile"
-            className="w-130 h-82 object-cover      transition-all duration-300"
-          />
-        </div>
+      
+    <WeatherCard weather={weather}></WeatherCard>
+
+
+
       </section>
 
       {/* Type Animation */}
